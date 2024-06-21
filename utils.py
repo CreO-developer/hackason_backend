@@ -72,6 +72,10 @@ def get_percent_from_theme(image, theme_image_path):
     white_area_of_hamidashi = cv2.countNonZero(cv2.cvtColor(back_im1_np, cv2.COLOR_RGB2GRAY))
     white_area_of_include = cv2.countNonZero(cv2.cvtColor(back_im2_np, cv2.COLOR_RGB2GRAY))
 
+    print(whole_area_of_theme)
+    print(white_area_of_hamidashi)
+    print(white_area_of_include)
+
     # はみ出している割合を計算
     hamidashi_ratio = (white_area_of_hamidashi / whole_area_of_theme) - 1
 
@@ -91,10 +95,10 @@ def detect_people_in_image(image):
     (rects, weights) = hog.detectMultiScale(image, winStride=(4, 4), padding=(8, 8), scale=1.05)
     return len(rects)
 
-def get_score_num_of_people(image, theme_num:int):
+def get_score_num_of_people(image, theme_num:int, max_peaple_score:int):
     #  人数を検出
-    number_of_people = detect_people_in_image(image)
-    print(number_of_people)
+    num_of_people = detect_people_in_image(image)
+    print(num_of_people)
 
     # お題によって適切な人数を取得
     appropriate_number = 0
@@ -109,6 +113,6 @@ def get_score_num_of_people(image, theme_num:int):
     
     # 人数によるスコアを取得
     if num_of_people == appropriate_number:
-        return 15
+        return max_peaple_score
     else:  
-        return 15 - (np.abs(num_of_people - appropriate_number) * 5) if 15 - (np.abs(num_of_people - appropriate_number) * 5) > 0 else 0
+        return max_peaple_score - (np.abs(num_of_people - appropriate_number) * 5) if 15 - (np.abs(num_of_people - appropriate_number) * 5) > 0 else 0

@@ -63,7 +63,7 @@ async def submit_score_question1(question: Question):
     include_score = include_ratio * 35
     exclude_score = (1 - exclude_ratio) * 35
 
-    logging.info(f"hamidashi_ratio: {exclude_ratio}, include_ratio: {include_ratio}")
+    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
     return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
 
@@ -74,7 +74,28 @@ async def submit_score_question1(question: Question):
     # 人数 15点満点
     # はみ出しているか35点満点
     # 枠がどれだけ埋まっているか35点満点
-    return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35}
+    num_of_questions = 1
+    # Firebase Storageから画像をダウンロード
+    image = await get_image_from_firebase(question.imageUrl)
+    if image is None:
+        raise HTTPException(status_code=500, detail="Failed to decode image")
+
+    # 人数によるスコアを取得
+    max_peaple_score = 15
+    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+
+    # お題の画像を取得
+    theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
+    
+    # はみ出している割合と含まれている割合を計算
+    exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
+
+    include_score = include_ratio * 35
+    exclude_score = (1 - exclude_ratio) * 35
+
+    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
+
+    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
 
 # テーマ2（組体操）の問題 100点満点
 @app.post("/mock/question2")
@@ -85,6 +106,37 @@ async def submit_score_question2(question: Question):
     # はみ出しているか35点満点
     # 枠がどれだけ埋まっているか35点満点
     return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35}
+
+@app.post("/question2")
+async def submit_score_question2(question: Question):
+    # ここでスコアデータを処理します
+    # 開発者の主観15点満点
+    # 人数 15点満点
+    # はみ出しているか35点満点
+    # 枠がどれだけ埋まっているか35点満点
+
+    num_of_questions = 2
+    # Firebase Storageから画像をダウンロード
+    image = await get_image_from_firebase(question.imageUrl)
+    if image is None:
+        raise HTTPException(status_code=500, detail="Failed to decode image")
+    
+    # 人数によるスコアを取得
+    max_peaple_score = 15
+    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+
+    # お題の画像を取得
+    theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
+
+    # はみ出している割合と含まれている割合を計算
+    exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
+
+    include_score = include_ratio * 35
+    exclude_score = (1 - exclude_ratio) * 35
+
+    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
+
+    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
 
 # テーマ3（芸能人）の問題 150点満点
 @app.post("/mock/question3")
@@ -97,6 +149,38 @@ async def submit_score_question3(question: Question):
     #表情: 20
     return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35,"faceScore": 15}
 
+@app.post("/question3")
+async def submit_score_question3(question: Question):
+    # ここでスコアデータを処理します
+    # 開発者の主観 20点
+    # 人数 20点
+    # はみ出しているか 45点
+    # 枠がどれだけ埋まっているか 45点
+    # 表情: 20
+
+    num_of_questions = 3
+    # Firebase Storageから画像をダウンロード
+    image = await get_image_from_firebase(question.imageUrl)
+    if image is None:
+        raise HTTPException(status_code=500, detail="Failed to decode image")
+
+    # 人数によるスコアを取得
+    max_peaple_score = 20
+    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+
+    # お題の画像を取得
+    theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
+    
+    # はみ出している割合と含まれている割合を計算
+    exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
+
+    include_score = include_ratio * 45
+    exclude_score = (1 - exclude_ratio) * 45
+
+    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
+
+    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 20}
+
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
 async def submit_score_question4(question: Question):
@@ -107,6 +191,38 @@ async def submit_score_question4(question: Question):
     #枠がどれだけ埋まっているか45点
     #表情: 20
     return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35,"faceScore": 10}
+
+@app.post("/question4")
+async def submit_score_question4(question: Question):
+    # ここでスコアデータを処理します
+    # 開発者の主観 20点
+    # 人数 20点
+    # はみ出しているか 45点
+    # 枠がどれだけ埋まっているか 45点
+    # 表情: 20
+
+    num_of_questions = 4
+    # Firebase Storageから画像をダウンロード
+    image = await get_image_from_firebase(question.imageUrl)
+    if image is None:
+        raise HTTPException(status_code=500, detail="Failed to decode image")
+
+    # 人数によるスコアを取得
+    max_peaple_score = 20
+    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+
+    # お題の画像を取得
+    theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
+    
+    # はみ出している割合と含まれている割合を計算
+    exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
+
+    include_score = include_ratio * 45
+    exclude_score = (1 - exclude_ratio) * 45
+
+    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
+
+    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 20}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):
