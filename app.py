@@ -40,33 +40,34 @@ async def root():
 # テーマ1（図形）の問題 100点満点
 @app.post("/mock/question1")
 async def submit_score_question1(question: Question):
+  
     # ここでスコアデータを処理します
     # 開発者の主観15点満点
     # 人数 15点満点
     # はみ出しているか35点満点
     # 枠がどれだけ埋まっているか35点満点
-    num_of_questions = 1
-    # Firebase Storageから画像をダウンロード
-    image = await get_image_from_firebase(question.imageUrl)
-    if image is None:
-        raise HTTPException(status_code=500, detail="Failed to decode image")
+    # num_of_questions = 1
+    # # Firebase Storageから画像をダウンロード
+    # image = await get_image_from_firebase(question.imageUrl)
+    # if image is None:
+    #     raise HTTPException(status_code=500, detail="Failed to decode image")
 
-    # 人数によるスコアを取得
-    peaple_score = get_score_num_of_people(image, question.themeNumber)
+    # # 人数によるスコアを取得
+    # peaple_score = get_score_num_of_people(image, question.themeNumber)
 
-    # お題の画像を取得
-    theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
+    # # お題の画像を取得
+    # theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
     
-    # はみ出している割合と含まれている割合を計算
-    exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
+    # # はみ出している割合と含まれている割合を計算
+    # exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
 
-    include_score = include_ratio * 35
-    exclude_score = (1 - exclude_ratio) * 35
+    # include_score = include_ratio * 35
+    # exclude_score = (1 - exclude_ratio) * 35
 
-    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
+    # logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
-
+    # return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
+  return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35}
 @app.post("/question1")
 async def submit_score_question1(question: Question):
     # ここでスコアデータを処理します
