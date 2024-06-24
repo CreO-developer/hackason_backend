@@ -95,7 +95,7 @@ async def submit_score_question1(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
+    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
 
 # テーマ2（組体操）の問題 100点満点
 @app.post("/mock/question2")
@@ -136,7 +136,7 @@ async def submit_score_question2(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
+    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
 
 # テーマ3（芸能人）の問題 150点満点
 @app.post("/mock/question3")
@@ -179,7 +179,7 @@ async def submit_score_question3(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 20}
+    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
 
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
@@ -211,6 +211,8 @@ async def submit_score_question4(question: Question):
     max_peaple_score = 20
     peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
 
+    print(f'peaple_score: {peaple_score}')
+
     # お題の画像を取得
     theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
     
@@ -222,7 +224,7 @@ async def submit_score_question4(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 20}
+    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):

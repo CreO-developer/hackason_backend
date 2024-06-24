@@ -67,6 +67,8 @@ def get_percent_from_theme(image, theme_image_path):
     back_im1_np = np.array(back_im1)
     back_im2_np = np.array(back_im2)
 
+    # print(back_im2_np)
+
     # 白い領域の面積を計算
     whole_area_of_theme = cv2.countNonZero(image_flactal_np)
     white_area_of_hamidashi = cv2.countNonZero(cv2.cvtColor(back_im1_np, cv2.COLOR_RGB2GRAY))
@@ -78,6 +80,7 @@ def get_percent_from_theme(image, theme_image_path):
 
     # はみ出している割合を計算
     hamidashi_ratio = (white_area_of_hamidashi / whole_area_of_theme) - 1
+    hamidashi_ratio = 0 if hamidashi_ratio < 0 else hamidashi_ratio
 
     # 含まれている割合を計算
     include_ratio = white_area_of_include / whole_area_of_theme
@@ -98,18 +101,22 @@ def detect_people_in_image(image):
 def get_score_num_of_people(image, theme_num:int, max_peaple_score:int):
     #  人数を検出
     num_of_people = detect_people_in_image(image)
-    print(num_of_people)
+    print(f'num_of_people: {num_of_people}')
+
+    print(f'theme_num: {theme_num}')
 
     # お題によって適切な人数を取得
     appropriate_number = 0
-    if theme_num >= 1 & theme_num <= 5:
+    if theme_num >= 1 and theme_num < 6:
         appropriate_number = 1
-    elif theme_num >= 6 & theme_num <= 10:
+    elif theme_num >= 6 and theme_num < 11:
         appropriate_number = 2
-    elif theme_num >= 11 & theme_num <= 15:
+    elif theme_num >= 11 and theme_num < 16:
         appropriate_number = 4
     else:
         appropriate_number = 0
+    
+    print(f'appropriate_number: {appropriate_number}')
     
     # 人数によるスコアを取得
     if num_of_people == appropriate_number:
