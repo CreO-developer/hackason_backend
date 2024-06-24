@@ -21,7 +21,7 @@ app = FastAPI()
 # Firebaseの初期化
 cred = credentials.Certificate('./firebase.json')
 if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred, {"storageBucket": "prehackson22.appspot.com"})
+    firebase_admin.initialize_app(cred, {"storageBucket": "hackson-creo.appspot.com"})
 
 # storageのbucketインスタンスを作成
 bucket = storage.bucket()
@@ -40,33 +40,34 @@ async def root():
 # テーマ1（図形）の問題 100点満点
 @app.post("/mock/question1")
 async def submit_score_question1(question: Question):
+  
     # ここでスコアデータを処理します
     # 開発者の主観15点満点
     # 人数 15点満点
     # はみ出しているか35点満点
     # 枠がどれだけ埋まっているか35点満点
-    num_of_questions = 1
-    # Firebase Storageから画像をダウンロード
-    image = await get_image_from_firebase(question.imageUrl)
-    if image is None:
-        raise HTTPException(status_code=500, detail="Failed to decode image")
+    # num_of_questions = 1
+    # # Firebase Storageから画像をダウンロード
+    # image = await get_image_from_firebase(question.imageUrl)
+    # if image is None:
+    #     raise HTTPException(status_code=500, detail="Failed to decode image")
 
-    # 人数によるスコアを取得
-    peaple_score = get_score_num_of_people(image, question.themeNumber)
+    # # 人数によるスコアを取得
+    # peaple_score = get_score_num_of_people(image, question.themeNumber)
 
-    # お題の画像を取得
-    theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
+    # # お題の画像を取得
+    # theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
     
-    # はみ出している割合と含まれている割合を計算
-    exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
+    # # はみ出している割合と含まれている割合を計算
+    # exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
 
-    include_score = include_ratio * 35
-    exclude_score = (1 - exclude_ratio) * 35
+    # include_score = include_ratio * 35
+    # exclude_score = (1 - exclude_ratio) * 35
 
-    logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
+    # logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
-
+    # return {"includeScore": include_score , "excludeScore": exclude_score, "peopleScore": peaple_score, "originalScore": 15}
+  return {"includeScore": 35 , "excludeScore": 35, "peopleScore": 15,"originalScore": 15}
 @app.post("/question1")
 async def submit_score_question1(question: Question):
     # ここでスコアデータを処理します
@@ -77,6 +78,7 @@ async def submit_score_question1(question: Question):
     num_of_questions = 1
     # Firebase Storageから画像をダウンロード
     image = await get_image_from_firebase(question.imageUrl)
+
     if image is None:
         raise HTTPException(status_code=500, detail="Failed to decode image")
 
@@ -95,7 +97,7 @@ async def submit_score_question1(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
 
 # テーマ2（組体操）の問題 100点満点
 @app.post("/mock/question2")
@@ -105,7 +107,7 @@ async def submit_score_question2(question: Question):
     # 人数 15点満点
     # はみ出しているか35点満点
     # 枠がどれだけ埋まっているか35点満点
-    return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35}
+    return {"includeScore": 20 , "excludeScore": 35, "peopleScore":5,"originalScore": 15}
 
 @app.post("/question2")
 async def submit_score_question2(question: Question):
@@ -135,8 +137,8 @@ async def submit_score_question2(question: Question):
     exclude_score = (1 - exclude_ratio) * 35
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
-
-    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
+   
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
 
 # テーマ3（芸能人）の問題 150点満点
 @app.post("/mock/question3")
@@ -147,7 +149,7 @@ async def submit_score_question3(question: Question):
     #はみ出しているか　45点
     #枠がどれだけ埋まっているか　45点
     #表情: 20
-    return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35,"faceScore": 15}
+    return {"includeScore": 30 , "excludeScore": 30, "peopleScore": 10,"originalScore": 10,"faceScore": 0}
 
 @app.post("/question3")
 async def submit_score_question3(question: Question):
@@ -179,7 +181,7 @@ async def submit_score_question3(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
 
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
@@ -190,7 +192,7 @@ async def submit_score_question4(question: Question):
     #はみ出しているか45点
     #枠がどれだけ埋まっているか45点
     #表情: 20
-    return {"includeScore": 15 , "excludeScore": 15, "peopleScore": 35,"originalScore": 35,"faceScore": 10}
+    return {"includeScore": 35 , "excludeScore": 10, "peopleScore": 10,"originalScore": 10,"faceScore": 10}
 
 @app.post("/question4")
 async def submit_score_question4(question: Question):
@@ -224,7 +226,7 @@ async def submit_score_question4(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": float(include_score) , "excludeScore": float(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):
