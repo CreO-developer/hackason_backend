@@ -12,7 +12,7 @@ import logging
 
 from utils import get_image_from_firebase
 from utils import get_subject_image_path
-from utils import get_percent_from_theme, get_score_num_of_people, detect_people_in_image
+from utils import get_percent_from_theme, get_score_num_of_people, detect_people_in_image, get_face_score
 
 # from api.number_of_people import detect_people_in_image
 # FastAPIのインスタンス作成
@@ -21,7 +21,7 @@ app = FastAPI()
 # Firebaseの初期化
 cred = credentials.Certificate('./firebase.json')
 if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred, {"storageBucket": "hackson-creo.appspot.com"})
+    firebase_admin.initialize_app(cred, {"storageBucket": "prehackson22.appspot.com"})
 
 # storageのbucketインスタンスを作成
 bucket = storage.bucket()
@@ -136,6 +136,8 @@ async def submit_score_question2(question: Question):
     include_score = include_ratio * 35
     exclude_score = (1 - exclude_ratio) * 35
 
+    exclude_score = 0 if exclude_score < 0 else exclude_score
+
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
    
     return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
@@ -181,7 +183,11 @@ async def submit_score_question3(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
+    # 表情のスコアを取得
+    emotional_ratio =  get_face_score(image)
+    emotion_score = emotional_ratio * 20
+
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20, "faceScore": emotion_score}
 
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
@@ -226,7 +232,12 @@ async def submit_score_question4(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20}
+    # 表情のスコアを取得
+    emotional_ratio =  get_face_score(image)
+    emotion_score = emotional_ratio * 20
+
+
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20, "faceScore": int(emotion_score)}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):

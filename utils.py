@@ -10,11 +10,12 @@ import requests
 from io import BytesIO
 from PIL import Image, ImageOps
 from rembg import remove, new_session
+from deepface import DeepFace
 
 # Firebaseの初期化
 cred = credentials.Certificate('./firebase.json')
 if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred, {"storageBucket": "hackson-creo.appspot.com"})
+    firebase_admin.initialize_app(cred, {"storageBucket": "prehackson22.appspot.com"})
 
 bucket = storage.bucket()
 
@@ -81,6 +82,7 @@ def get_percent_from_theme(image, theme_image_path):
     # はみ出している割合を計算
     hamidashi_ratio = (white_area_of_hamidashi / whole_area_of_theme) - 1
     hamidashi_ratio = 0 if hamidashi_ratio < 0 else hamidashi_ratio
+    hamidashi_ratio = 1 if hamidashi_ratio > 1 else hamidashi_ratio
 
     # 含まれている割合を計算
     include_ratio = white_area_of_include / whole_area_of_theme
@@ -123,3 +125,28 @@ def get_score_num_of_people(image, theme_num:int, max_peaple_score:int):
         return max_peaple_score
     else:  
         return max_peaple_score - (np.abs(num_of_people - appropriate_number) * 5) if 15 - (np.abs(num_of_people - appropriate_number) * 5) > 0 else 0
+    
+
+def get_face_score(image):
+    try:
+        # DeepFaceを使用して感情を判定
+        results = DeepFace.analyze(image, actions=['age', 'gender', 'emotion'])
+
+        # 最初の顔情報を取得
+        result = results[0]
+        
+        print(f'emotion_result: {result}')
+
+        # 感情によるスコアを取得
+        emotion_score_ratio = 0.4
+        target_emotion = 'happy'
+
+        add_score_ratio = result['emotion'][target_emotion] * 0.6 / 100
+        emotion_score_ratio = emotion_score_ratio + add_score_ratio
+
+    except Exception as e:
+        print(f'Error in DeepFace analysis: {e}')
+        # 顔が読み取れなかった場合のデフォルトのスコア
+        emotion_score_ratio = 0.4
+
+    return emotion_score_ratio
