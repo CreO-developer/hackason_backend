@@ -127,7 +127,7 @@ def get_score_num_of_people(image, theme_num:int, max_peaple_score:int):
         return max_peaple_score - (np.abs(num_of_people - appropriate_number) * 5) if 15 - (np.abs(num_of_people - appropriate_number) * 5) > 0 else 0
     
 
-def get_face_score(image):
+def get_face_score(image, num_of_question:int, theme_num:int):
     try:
         # DeepFaceを使用して感情を判定
         results = DeepFace.analyze(image, actions=['age', 'gender', 'emotion'])
@@ -139,7 +139,19 @@ def get_face_score(image):
 
         # 感情によるスコアを取得
         emotion_score_ratio = 0.4
-        target_emotion = 'happy'
+        if num_of_question == 3:
+            target_emotion = 'happy'
+        elif num_of_question == 4:
+            switcher = {
+                1: 'angry',
+                2: 'sad',
+                3: 'neutral',
+                4: 'happy',
+                0: 'surprise'
+            }
+            target_emotion = switcher.get(theme_num % 5, 'neutral')
+        else:
+            target_emotion = 'neutral'
 
         add_score_ratio = result['emotion'][target_emotion] * 0.6 / 100
         emotion_score_ratio = emotion_score_ratio + add_score_ratio

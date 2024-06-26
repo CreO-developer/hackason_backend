@@ -233,7 +233,7 @@ async def submit_score_question4(question: Question):
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
     # 表情のスコアを取得
-    emotional_ratio =  get_face_score(image)
+    emotional_ratio =  get_face_score(image. num_of_questions, question.themeNumber)
     emotion_score = emotional_ratio * 20
 
 
