@@ -11,6 +11,7 @@ from io import BytesIO
 from PIL import Image, ImageOps
 from rembg import remove, new_session
 from deepface import DeepFace
+from yolo import object_detection
 
 # Firebaseの初期化
 cred = credentials.Certificate('./firebase.json')
@@ -39,9 +40,6 @@ async def get_image_from_firebase(image_url):
 def get_percent_from_theme(image, theme_image_path):
     # 画像をPIL形式に変換
     image_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-
-    # rembgを使用して背景を透過させる
-    output_image = remove(image_pil, session=session)
 
     # アルファマットを生成
     alpha_image = remove(image_pil, session=session, post_process_mask=True, only_mask=True)
@@ -93,19 +91,31 @@ def get_subject_image_path(num_of_questions:int, num_of_theme:int):
     image_path = f"./images/question{num_of_questions}/theme{num_of_theme}.png"
     return image_path
 
-# 画像から人を検出する関数
-def detect_people_in_image(image):
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
-    (rects, weights) = hog.detectMultiScale(image, winStride=(4, 4), padding=(8, 8), scale=1.05)
-    return len(rects)
 
-def get_score_num_of_people(image, theme_num:int, max_peaple_score:int):
+def peaple_and_developer_score(image, theme_num:int, max_peaple_score:int):
     #  人数を検出
-    num_of_people = detect_people_in_image(image)
+    num_of_people, has_laptop, has_car, has_pottedplant, has_cell_phone = object_detection(image)
     print(f'num_of_people: {num_of_people}')
 
     print(f'theme_num: {theme_num}')
+
+    # 開発者の主観スコア
+    developer_score_ratio = 0.5
+    if has_laptop:
+        developer_score_ratio += 0.25
+    if has_car:
+        developer_score_ratio += 0.25
+    if has_pottedplant:
+        developer_score_ratio += 0.25
+    if has_cell_phone:
+        developer_score_ratio -= 0.25
+    if num_of_people > 5:
+        developer_score_ratio += 0.25
+    
+    if developer_score_ratio > 1:
+        developer_score_ratio = 1
+    if developer_score_ratio < 0:
+        developer_score_ratio = 0
 
     # お題によって適切な人数を取得
     appropriate_number = 0
@@ -122,9 +132,11 @@ def get_score_num_of_people(image, theme_num:int, max_peaple_score:int):
     
     # 人数によるスコアを取得
     if num_of_people == appropriate_number:
-        return max_peaple_score
+        return max_peaple_score, developer_score_ratio
+    elif num_of_people == 0:
+        return 0, developer_score_ratio
     else:  
-        return max_peaple_score - (np.abs(num_of_people - appropriate_number) * 5) if 15 - (np.abs(num_of_people - appropriate_number) * 5) > 0 else 0
+        return max_peaple_score - (np.abs(num_of_people - appropriate_number) * 5) if 15 - (np.abs(num_of_people - appropriate_number) * 5) > 0 else 0, developer_score_ratio
     
 
 def get_face_score(image, num_of_question:int, theme_num:int):

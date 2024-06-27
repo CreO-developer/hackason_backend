@@ -12,7 +12,7 @@ import logging
 
 from utils import get_image_from_firebase
 from utils import get_subject_image_path
-from utils import get_percent_from_theme, get_score_num_of_people, detect_people_in_image, get_face_score
+from utils import get_percent_from_theme, peaple_and_developer_score, get_face_score
 
 # from api.number_of_people import detect_people_in_image
 # FastAPIのインスタンス作成
@@ -84,7 +84,12 @@ async def submit_score_question1(question: Question):
 
     # 人数によるスコアを取得
     max_peaple_score = 15
-    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+    peaple_score, original_score_raito = peaple_and_developer_score(image, question.themeNumber, max_peaple_score)
+
+    print(f'peaple_score: {peaple_score}')
+
+    # 開発者の主観スコア
+    original_score = original_score_raito * 15
 
     # お題の画像を取得
     theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
@@ -97,7 +102,7 @@ async def submit_score_question1(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score}
 
 # テーマ2（組体操）の問題 100点満点
 @app.post("/mock/question2")
@@ -125,8 +130,12 @@ async def submit_score_question2(question: Question):
     
     # 人数によるスコアを取得
     max_peaple_score = 15
-    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+    peaple_score, original_score_raito = peaple_and_developer_score(image, question.themeNumber, max_peaple_score)
 
+    print(f'peaple_score: {peaple_score}')
+
+    # 開発者の主観スコア
+    original_score = original_score_raito * 15
     # お題の画像を取得
     theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
 
@@ -140,7 +149,7 @@ async def submit_score_question2(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
    
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 15}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score}
 
 # テーマ3（芸能人）の問題 150点満点
 @app.post("/mock/question3")
@@ -168,9 +177,14 @@ async def submit_score_question3(question: Question):
     if image is None:
         raise HTTPException(status_code=500, detail="Failed to decode image")
 
-    # 人数によるスコアを取得
+   # 人数によるスコアを取得
     max_peaple_score = 20
-    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+    peaple_score, original_score_raito = peaple_and_developer_score(image, question.themeNumber, max_peaple_score)
+
+    print(f'peaple_score: {peaple_score}')
+
+    # 開発者の主観スコア
+    original_score = original_score_raito * 20
 
     # お題の画像を取得
     theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
@@ -187,7 +201,7 @@ async def submit_score_question3(question: Question):
     emotional_ratio =  get_face_score(image)
     emotion_score = emotional_ratio * 20
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20, "faceScore": emotion_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score, "faceScore": emotion_score}
 
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
@@ -217,9 +231,12 @@ async def submit_score_question4(question: Question):
 
     # 人数によるスコアを取得
     max_peaple_score = 20
-    peaple_score = get_score_num_of_people(image, question.themeNumber, max_peaple_score)
+    peaple_score, original_score_raito = peaple_and_developer_score(image, question.themeNumber, max_peaple_score)
 
     print(f'peaple_score: {peaple_score}')
+
+    # 開発者の主観スコア
+    original_score = original_score_raito * 20
 
     # お題の画像を取得
     theme_image_path = get_subject_image_path(num_of_questions, question.themeNumber)
@@ -233,11 +250,11 @@ async def submit_score_question4(question: Question):
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
     # 表情のスコアを取得
-    emotional_ratio =  get_face_score(image. num_of_questions, question.themeNumber)
+    emotional_ratio =  get_face_score(image, num_of_questions, question.themeNumber)
     emotion_score = emotional_ratio * 20
 
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": 20, "faceScore": int(emotion_score)}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score, "faceScore": int(emotion_score)}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):
