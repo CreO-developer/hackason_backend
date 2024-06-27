@@ -9,7 +9,7 @@ import cv2
 import requests
 from io import BytesIO
 from PIL import Image, ImageOps
-from rembg import remove, new_session
+from ultralytics import YOLO
 from deepface import DeepFace
 from yolo import object_detection
 
@@ -20,8 +20,8 @@ if not firebase_admin._apps:
 
 bucket = storage.bucket()
 
-# rembgのセッションを新しく作成
-session = new_session("u2net")
+
+
 
 async def get_image_from_firebase(image_url):
     try:
@@ -38,14 +38,37 @@ async def get_image_from_firebase(image_url):
         return None
 
 def get_percent_from_theme(image, theme_image_path):
+    # YOLOセグメンテーションモデルのロード
+    yolo_model = YOLO(model="yolov8n-seg.pt")
     # 画像をPIL形式に変換
     image_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
-    # アルファマットを生成
-    alpha_image = remove(image_pil, session=session, post_process_mask=True, only_mask=True)
+    # YOLOによるセグメンテーションを実行
+    results = yolo_model.predict(source=np.array(image_pil))
 
-    # 透過画像をRGB形式に変換
-    alpha_image_rgb = alpha_image.convert("RGB")
+    # セグメンテーションマスクを取得
+    segmentation_masks = results[0].masks.data
+    classes = results[0].boxes.cls
+
+    # 'person'クラスのIDは通常0です。これを確認してください。
+    person_class_id = 0
+
+    # 人に対するマスクを抽出
+    person_mask = np.zeros(segmentation_masks[0].shape, dtype=np.uint8)
+    person_count = 0
+    for i, mask in enumerate(segmentation_masks):
+        if classes[i] == person_class_id:
+            person_mask = np.maximum(person_mask, mask.cpu().numpy())
+            person_count += 1
+
+    if person_count == 0:
+        return 0, 0
+
+    # 人にマスクされた箇所を白、それ以外を黒にするバイナリマスクを生成
+    binary_mask = (person_mask > 0).astype(np.uint8) * 255
+
+    # バイナリマスクをRGB形式に変換
+    alpha_image_rgb = Image.fromarray(binary_mask).convert("RGB")
 
     # PNG画像ファイルのパス
     image_path = theme_image_path
@@ -66,8 +89,6 @@ def get_percent_from_theme(image, theme_image_path):
     back_im1_np = np.array(back_im1)
     back_im2_np = np.array(back_im2)
 
-    # print(back_im2_np)
-
     # 白い領域の面積を計算
     whole_area_of_theme = cv2.countNonZero(image_flactal_np)
     white_area_of_hamidashi = cv2.countNonZero(cv2.cvtColor(back_im1_np, cv2.COLOR_RGB2GRAY))
@@ -85,7 +106,11 @@ def get_percent_from_theme(image, theme_image_path):
     # 含まれている割合を計算
     include_ratio = white_area_of_include / whole_area_of_theme
 
-    return hamidashi_ratio, include_ratio
+    print(f'hamidashi_ratio: {1 - hamidashi_ratio}')
+    print(f'include_ratio: {include_ratio}')
+
+    return (1 - hamidashi_ratio), include_ratio
+
 
 def get_subject_image_path(num_of_questions:int, num_of_theme:int):
     image_path = f"./images/question{num_of_questions}/theme{num_of_theme}.png"

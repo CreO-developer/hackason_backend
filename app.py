@@ -98,11 +98,11 @@ async def submit_score_question1(question: Question):
     exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
 
     include_score = include_ratio * 35
-    exclude_score = (1 - exclude_ratio) * 35
+    exclude_score = exclude_ratio * 35
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score)}
 
 # テーマ2（組体操）の問題 100点満点
 @app.post("/mock/question2")
@@ -143,13 +143,13 @@ async def submit_score_question2(question: Question):
     exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
 
     include_score = include_ratio * 35
-    exclude_score = (1 - exclude_ratio) * 35
+    exclude_score = exclude_ratio * 35
 
     exclude_score = 0 if exclude_score < 0 else exclude_score
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
    
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score)}
 
 # テーマ3（芸能人）の問題 150点満点
 @app.post("/mock/question3")
@@ -175,8 +175,10 @@ async def submit_score_question3(question: Question):
     # Firebase Storageから画像をダウンロード
     image = await get_image_from_firebase(question.imageUrl)
     if image is None:
+        print(f'question.themeNumber: {question.themeNumber}')
         raise HTTPException(status_code=500, detail="Failed to decode image")
 
+    print(f'num_of_questions: {num_of_questions}')
    # 人数によるスコアを取得
     max_peaple_score = 20
     peaple_score, original_score_raito = peaple_and_developer_score(image, question.themeNumber, max_peaple_score)
@@ -193,7 +195,7 @@ async def submit_score_question3(question: Question):
     exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
 
     include_score = include_ratio * 45
-    exclude_score = (1 - exclude_ratio) * 45
+    exclude_score = exclude_ratio * 45
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
@@ -201,7 +203,7 @@ async def submit_score_question3(question: Question):
     emotional_ratio = get_face_score(image, num_of_questions, question.themeNumber)
     emotion_score = emotional_ratio * 20
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score, "faceScore": emotion_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score), "faceScore": int(emotion_score)}
 
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
@@ -245,7 +247,7 @@ async def submit_score_question4(question: Question):
     exclude_ratio, include_ratio = get_percent_from_theme(image, theme_image_path)
 
     include_score = include_ratio * 45
-    exclude_score = (1 - exclude_ratio) * 45
+    exclude_score = exclude_ratio * 45
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
@@ -254,7 +256,7 @@ async def submit_score_question4(question: Question):
     emotion_score = emotional_ratio * 20
 
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score, "faceScore": int(emotion_score)}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score), "faceScore": int(emotion_score)}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):
