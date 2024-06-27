@@ -21,7 +21,7 @@ app = FastAPI()
 # Firebaseの初期化
 cred = credentials.Certificate('./firebase.json')
 if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred, {"storageBucket": "prehackson22.appspot.com"})
+    firebase_admin.initialize_app(cred, {"storageBucket": "hackson-creo.appspot.com"})
 
 # storageのbucketインスタンスを作成
 bucket = storage.bucket()
@@ -102,7 +102,7 @@ async def submit_score_question1(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score)}
 
 # テーマ2（組体操）の問題 100点満点
 @app.post("/mock/question2")
@@ -149,7 +149,7 @@ async def submit_score_question2(question: Question):
 
     logging.info(f"include_ratio: {include_ratio}, hamidashi_ratio: {exclude_ratio}")
    
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score)}
 
 # テーマ3（芸能人）の問題 150点満点
 @app.post("/mock/question3")
@@ -201,7 +201,7 @@ async def submit_score_question3(question: Question):
     emotional_ratio = get_face_score(image, num_of_questions, question.themeNumber)
     emotion_score = emotional_ratio * 20
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score, "faceScore": emotion_score}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score), "faceScore": int(emotion_score)}
 
 # テーマ4（アニメ、漫画）の問題 150点満点
 @app.post("/mock/question4")
@@ -254,7 +254,7 @@ async def submit_score_question4(question: Question):
     emotion_score = emotional_ratio * 20
 
 
-    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": original_score, "faceScore": int(emotion_score)}
+    return {"includeScore": int(include_score) , "excludeScore": int(exclude_score), "peopleScore": int(peaple_score), "originalScore": int(original_score), "faceScore": int(emotion_score)}
 
 @app.get("/get-image/{file_name}")
 async def get_image(file_name: str):
