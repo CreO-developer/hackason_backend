@@ -21,7 +21,7 @@ app = FastAPI()
 # Firebaseの初期化
 cred = credentials.Certificate('./firebase.json')
 if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred, {"storageBucket": "prehackson22.appspot.com"})
+    firebase_admin.initialize_app(cred, {"storageBucket": "hackson-creo.appspot.com"})
 
 # storageのbucketインスタンスを作成
 bucket = storage.bucket()
